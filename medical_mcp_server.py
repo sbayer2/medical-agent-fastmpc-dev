@@ -16,10 +16,14 @@ import stripe
 import httpx
 from anthropic import Anthropic
 from openai import AsyncOpenAI
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load .env file for local development only (not needed in cloud deployment)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv not installed (e.g., in production), skip loading .env
+    pass
 
 # Initialize FastMCP server
 mcp = FastMCP("MedicalAgent")
