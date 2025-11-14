@@ -1,7 +1,7 @@
-# Medical Agent MCP Server
+# Medical Agent MCP Server ( DEVELOPMENT VERSION CREATED 11-14-2025 )
 
 🏥 **Production-ready medical document analysis platform** powered by Claude Sonnet 4 and deployed on FastMCP Cloud.
-
+    ####  THis is a mirror repo of medical-agent-fastmpc for tetsing and develoment to prevent corruption of original repo and server ####
 ## 🚀 **Live Deployment**
 
 **FastMCP Cloud Server:** `https://medical-agent-server.fastmcp.app/mcp`
