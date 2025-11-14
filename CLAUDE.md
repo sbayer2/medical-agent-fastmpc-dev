@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provides AI-powered medical document analysis services. The system uses Claude Sonnet 4 as the primary AI model with OpenAI GPT-4o as fallback, processing various medical documents including SOAP notes, lab reports, and patient histories with live Stripe payment integration.
+This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provides AI-powered medical document analysis services. The system uses Claude Sonnet 4.5 as the primary AI model with OpenAI GPT-4o as fallback, processing various medical documents including SOAP notes, lab reports, and patient histories with live Stripe payment integration.
 
 ## Tech Stack
 
 - **Runtime**: Python 3.12
 - **Framework**: FastMCP 2.2.6+
 - **Deployment**: FastMCP Cloud
-- **Primary AI Model**: Claude Sonnet 4 (`claude-sonnet-4-20250514`)
+- **Primary AI Model**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`)
 - **Fallback AI Model**: OpenAI GPT-4o (`gpt-4o`)
 - **Payment Processing**: Stripe Live API
 - **Protocol**: Model Context Protocol (MCP)

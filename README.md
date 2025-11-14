@@ -8,7 +8,7 @@
 
 ## ✨ **Features**
 
-- 🧠 **AI-Powered Analysis**: Claude Sonnet 4 + GPT-4o fallback
+- 🧠 **AI-Powered Analysis**: Claude Sonnet 4.5 + GPT-4o fallback
 - 💳 **Stripe Payment Integration**: Live billing with multiple tiers
 - 🔒 **HIPAA-Compliant Processing**: Secure medical data handling
 - 📊 **Multi-Tier Analysis**: Basic ($0.10), Comprehensive ($0.50), Batch ($0.05)
@@ -17,7 +17,7 @@
 
 ## 🤖 **AI Models**
 
-- **Primary**: Claude Sonnet 4 (`claude-sonnet-4-20250514`)
+- **Primary**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`)
 - **Fallback**: OpenAI GPT-4o (`gpt-4o`)
 - **Analysis Types**: Basic extraction, comprehensive insights, batch processing
 - **Token Tracking**: Real-time usage monitoring for accurate billing
