@@ -16,6 +16,10 @@ import stripe
 import httpx
 from anthropic import Anthropic
 from openai import AsyncOpenAI
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize FastMCP server
 mcp = FastMCP("MedicalAgent")
