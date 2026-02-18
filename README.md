@@ -1,6 +1,6 @@
 # Medical Agent MCP Server ( DEVELOPMENT VERSION CREATED 11-14-2025 )
 
-🏥 **Production-ready medical document analysis platform** powered by Claude Sonnet 4 and deployed on FastMCP Cloud.
+🏥 **Development medical document analysis platform** powered by **kimi-k2.5:cloud** via Ollama Cloud and deployed on FastMCP Cloud.
     ####  THis is a mirror repo of medical-agent-fastmpc for tetsing and develoment to prevent corruption of original repo and server ####
 ## 🚀 **Live Deployment**
 
@@ -8,18 +8,17 @@
 
 ## ✨ **Features**
 
-- 🧠 **AI-Powered Analysis**: Claude Sonnet 4.5 + GPT-4o fallback
+- 🧠 **AI-Powered Analysis**: kimi-k2.5:cloud via Ollama Cloud
 - 💳 **Stripe Payment Integration**: Live billing with multiple tiers
 - 🔒 **HIPAA-Compliant Processing**: Secure medical data handling
 - 📊 **Multi-Tier Analysis**: Basic ($0.10), Comprehensive ($0.50), Batch ($0.05)
 - 🌐 **Cross-Platform Integration**: Claude Desktop, Cursor IDE, Gemini CLI compatible
 - ⚡ **FastMCP Cloud**: Enterprise-grade deployment and scaling
 
-## 🤖 **AI Models**
+## 🤖 **AI Model**
 
-- **Primary**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`)
-- **Fallback**: OpenAI GPT-4o (`gpt-4o`)
-- **Analysis Types**: Basic extraction, comprehensive insights, batch processing
+- **Model**: kimi-k2.5:cloud via Ollama Cloud API
+- **Analysis Types**: Basic extraction, comprehensive insights, batch processing, complicated multi-step reasoning
 - **Token Tracking**: Real-time usage monitoring for accurate billing
 
 ## 📋 **Available Tools**
@@ -69,7 +68,7 @@ claude mcp add Medical-agent-server https://medical-agent-server.fastmcp.app/mcp
 ### Prerequisites
 - Python 3.12+
 - Virtual environment
-- API keys for Anthropic and/or OpenAI
+- Ollama Cloud API key (from https://ollama.com/settings/keys)
 
 ### Setup
 ```bash
@@ -91,8 +90,7 @@ cp .env.template .env
 
 ### Environment Variables
 ```bash
-ANTHROPIC_API_KEY=sk-ant-api03-your_key_here
-OPENAI_API_KEY=sk-proj-your_key_here
+OLLAMA_API_KEY=your_ollama_api_key_here
 STRIPE_API_KEY=sk_live_your_key_here
 ```
 
@@ -100,9 +98,6 @@ STRIPE_API_KEY=sk_live_your_key_here
 ```bash
 # Test AI functionality
 python3 test_medical_server.py
-
-# Test OpenAI fallback
-python3 test_openai_fallback.py
 
 # Import verification
 python3 -c "from medical_mcp_server import mcp; print('✅ Server ready')"
@@ -161,7 +156,7 @@ payment = create_payment_intent(
 - **Language**: Python 3.12
 - **Deployment**: FastMCP Cloud
 - **Payment Processing**: Stripe Live API
-- **AI Providers**: Anthropic API, OpenAI API
+- **AI Provider**: Ollama Cloud API (kimi-k2.5:cloud)
 - **Protocol**: Model Context Protocol (MCP)
 
 ## 📈 **Performance**
@@ -213,4 +208,4 @@ For issues, questions, or feature requests:
 
 ---
 
-*Built with ❤️ for healthcare professionals using Claude Sonnet 4 and FastMCP Cloud*
+*Built with ❤️ for healthcare professionals using kimi-k2.5:cloud and FastMCP Cloud*

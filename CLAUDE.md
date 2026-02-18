@@ -4,15 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provides AI-powered medical document analysis services. The system uses Claude Sonnet 4.5 as the primary AI model with OpenAI GPT-4o as fallback, processing various medical documents including SOAP notes, lab reports, and patient histories with live Stripe payment integration.
+This is a Medical Agent MCP Server **development** platform deployed on FastMCP Cloud that provides AI-powered medical document analysis services. The dev server uses **kimi-k2.5:cloud** via Ollama Cloud API as the AI model (production server remains on Claude Sonnet 4.5). It processes various medical documents including SOAP notes, lab reports, and patient histories with live Stripe payment integration.
 
 ## Tech Stack
 
 - **Runtime**: Python 3.12
 - **Framework**: FastMCP 2.2.6+
 - **Deployment**: FastMCP Cloud
-- **Primary AI Model**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`)
-- **Fallback AI Model**: OpenAI GPT-4o (`gpt-4o`)
+- **AI Model**: kimi-k2.5:cloud via Ollama Cloud API
 - **Payment Processing**: Stripe Live API
 - **Protocol**: Model Context Protocol (MCP)
 - **Package Management**: pip with virtual environments
@@ -35,7 +34,7 @@ This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provi
 
 ### Medical MCP Server (medical_mcp_server.py)
 - **Primary Function**: `analyze_medical_document()` - AI-powered medical analysis
-- **AI Models**: Claude Sonnet 4 (primary) + OpenAI GPT-4o (fallback)
+- **AI Model**: kimi-k2.5:cloud via Ollama Cloud
 - **Billing Tiers**: Basic ($0.10), Comprehensive ($0.50), Batch ($0.05), Complicated ($0.75)
 - **Payment Integration**: Full Stripe payment workflow with 5 tools
 - **Analysis Types**: 
@@ -47,7 +46,7 @@ This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provi
 ### AI Analysis Engine
 - **System Prompts**: Tier-specific medical analysis prompts
 - **Token Tracking**: Real-time usage monitoring for billing
-- **Error Handling**: Graceful fallback from Claude to OpenAI
+- **Error Handling**: Graceful error reporting when Ollama Cloud unavailable
 - **Response Format**: Structured JSON with medical categories
 - **Medical Focus**: SOAP notes, lab reports, patient histories
 
@@ -60,8 +59,7 @@ This is a Medical Agent MCP Server platform deployed on FastMCP Cloud that provi
 ## Environment Variables
 
 Required environment variables for FastMCP Cloud deployment:
-- `ANTHROPIC_API_KEY` - Primary AI provider (Claude Sonnet 4)
-- `OPENAI_API_KEY` - Fallback AI provider (GPT-4o) 
+- `OLLAMA_API_KEY` - AI provider (kimi-k2.5:cloud via Ollama Cloud)
 - `STRIPE_API_KEY` - Live payment processing
 
 ## Development Commands
@@ -84,7 +82,7 @@ python3 test_openai_fallback.py
 python3 -c "from medical_mcp_server import mcp; print('✅ Server ready')"
 
 # Run with environment variables
-ANTHROPIC_API_KEY=your_key OPENAI_API_KEY=your_key python3 test_medical_server.py
+OLLAMA_API_KEY=your_key python3 test_medical_server.py
 ```
 
 ## Live Deployment
@@ -100,7 +98,7 @@ claude mcp add Medical-agent-server https://medical-agent-server.fastmcp.app/mcp
 
 ### Available Tools (10 total)
 **Medical Analysis:**
-- `analyze_medical_document` - AI analysis with Claude Sonnet 4
+- `analyze_medical_document` - AI analysis with kimi-k2.5:cloud
 - `get_patient_summary` - Patient data retrieval
 - `get_available_services` - Service catalog
 
@@ -118,8 +116,8 @@ claude mcp add Medical-agent-server https://medical-agent-server.fastmcp.app/mcp
 ## Medical Analysis Flow
 
 1. User provides medical document content
-2. System selects AI model (Claude Sonnet 4 primary, GPT-4o fallback)
-3. Tier-specific system prompt applied (basic/comprehensive/batch)
+2. System sends request to kimi-k2.5:cloud via Ollama Cloud API
+3. Tier-specific system prompt applied (basic/comprehensive/batch/complicated)
 4. AI processes document with medical focus
 5. Structured JSON response with extracted medical data
 6. Token usage tracked for billing accuracy
@@ -130,12 +128,11 @@ claude mcp add Medical-agent-server https://medical-agent-server.fastmcp.app/mcp
 1. Update system prompts in `analyze_medical_document()` function
 2. Modify billing tiers in `BILLING_TIERS` dictionary
 3. Enhance medical data extraction logic
-4. Test with both Claude and OpenAI models
+4. Test with kimi-k2.5:cloud via Ollama Cloud
 
 ### Testing AI Integration
-- Use `test_medical_server.py` for Claude Sonnet 4 testing
-- Use `test_openai_fallback.py` for GPT-4o fallback testing
-- Verify environment variable configuration
+- Use `test_medical_server.py` for kimi-k2.5:cloud testing
+- Verify `OLLAMA_API_KEY` environment variable configuration
 - Check token usage and billing accuracy
 
 ### Debugging
@@ -143,6 +140,7 @@ claude mcp add Medical-agent-server https://medical-agent-server.fastmcp.app/mcp
 - Test API endpoints via MCP protocol
 - Verify Stripe webhook integration
 - Check AI model response quality and token usage
+- Verify Ollama Cloud connectivity at https://ollama.com
 - okay so I will become recursive and a little deep but stay with me , This
    server is used by claude or gemini or eventually open ai as " a 
   toolchest "  or more specifically " a back pack of decorated python 

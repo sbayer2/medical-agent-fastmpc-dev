@@ -14,24 +14,23 @@ from datetime import datetime
 import asyncio
 import stripe
 import httpx
-from anthropic import Anthropic
-from openai import AsyncOpenAI
+from ollama import Client as OllamaClient
 
 # Initialize FastMCP server
 mcp = FastMCP("MedicalAgent")
 
 # Initialize API clients
 stripe.api_key = os.getenv("STRIPE_API_KEY") or os.getenv("STRIPE_SECRET_KEY")
-anthropic_client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY")) if os.getenv("ANTHROPIC_API_KEY") else None
-openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KEY") else None
+ollama_client = OllamaClient(
+    host="https://ollama.com",
+    headers={"Authorization": f"Bearer {os.getenv('OLLAMA_API_KEY', '')}"}
+) if os.getenv("OLLAMA_API_KEY") else None
 
 # Validate API keys on startup
 if not stripe.api_key:
     print("Warning: STRIPE_API_KEY not found. Payment processing will be disabled.")
-if not anthropic_client:
-    print("Warning: ANTHROPIC_API_KEY not found. Primary AI analysis will use fallback.")
-if not openai_client:
-    print("Warning: OPENAI_API_KEY not found. Fallback AI analysis not available.")
+if not ollama_client:
+    print("Warning: OLLAMA_API_KEY not found. AI analysis will be disabled.")
 
 # Billing tiers configuration
 BILLING_TIERS = {
@@ -330,13 +329,13 @@ async def analyze_medical_document(
     patient_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Analyze medical document content using Claude Sonnet 4 AI.
-    
+    Analyze medical document content using kimi-k2.5:cloud via Ollama Cloud.
+
     Args:
         document_content: Raw medical document text (SOAP notes, lab results, etc.)
-        analysis_type: Type of analysis (basic, comprehensive, batch)
+        analysis_type: Type of analysis (basic, comprehensive, batch, complicated)
         patient_id: Optional patient identifier
-        
+
     Returns:
         AI-powered structured medical analysis with extracted information
     """
@@ -347,17 +346,12 @@ async def analyze_medical_document(
         }
     
     # Enhanced error diagnostics
-    if not anthropic_client and not openai_client:
-        import os
-        anthropic_key_present = bool(os.getenv('ANTHROPIC_API_KEY'))
-        openai_key_present = bool(os.getenv('OPENAI_API_KEY'))
+    if not ollama_client:
         return {
-            "error": "No AI providers configured",
+            "error": "No AI provider configured",
             "debug_info": {
-                "anthropic_key_detected": anthropic_key_present,
-                "openai_key_detected": openai_key_present,
-                "anthropic_client_status": str(type(anthropic_client)) if anthropic_client else "None",
-                "openai_client_status": str(type(openai_client)) if openai_client else "None",
+                "ollama_key_detected": bool(os.getenv('OLLAMA_API_KEY')),
+                "ollama_client_status": str(type(ollama_client)) if ollama_client else "None",
                 "environment": "lambda" if os.getenv('AWS_LAMBDA_FUNCTION_NAME') else "local"
             }
         }
@@ -419,68 +413,36 @@ Provide concise but complete analysis suitable for high-volume processing.
         Use structured JSON format optimized for batch operations."""
     
     try:
-        # Try Claude Sonnet 4.5 first, fallback to OpenAI GPT-4
-        if anthropic_client:
-            # Add timeout handling for API calls
-            import time
-            start_time = time.time()
+        # Use kimi-k2.5:cloud via Ollama Cloud
+        import time
+        start_time = time.time()
 
-            message = anthropic_client.messages.create(
-                model="claude-sonnet-4-5-20250929",
-                max_tokens=4096 if analysis_type in ["complicated", "comprehensive"] else 1000,
-                temperature=0.1,  # Low temperature for medical accuracy
-                system=system_prompt,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"""Please analyze the following medical document and provide a structured analysis:
+        response = ollama_client.chat(
+            model="kimi-k2.5:cloud",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": f"""Please analyze the following medical document and provide a structured analysis:
 
 === MEDICAL DOCUMENT ===
 {document_content}
 === END DOCUMENT ===
 
 Provide your analysis in JSON format with appropriate medical categories and extracted information."""
-                    }
-                ],
-                timeout=120.0  # 2 minute timeout for all analysis types
-            )
-            
-            processing_time = time.time() - start_time
-            ai_analysis = message.content[0].text
-            model_used = "claude-sonnet-4-5-20250929"
-            tokens_used = {
-                "input_tokens": message.usage.input_tokens,
-                "output_tokens": message.usage.output_tokens,
-                "total_tokens": message.usage.input_tokens + message.usage.output_tokens
-            }
-        elif openai_client:
-            # Fallback to OpenAI GPT-4
-            completion = await openai_client.chat.completions.create(
-                model="gpt-4o",
-                max_tokens=4096 if analysis_type in ["complicated", "comprehensive"] else 1000,
-                temperature=0.1,
-                timeout=120.0,  # 2 minute timeout
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {
-                        "role": "user",
-                        "content": f"""Please analyze the following medical document and provide a structured analysis:
+                }
+            ],
+            options={"temperature": 0.1}
+        )
 
-=== MEDICAL DOCUMENT ===
-{document_content}
-=== END DOCUMENT ===
-
-Provide your analysis in JSON format with appropriate medical categories and extracted information."""
-                    }
-                ]
-            )
-            ai_analysis = completion.choices[0].message.content
-            model_used = "gpt-4o"
-            tokens_used = {
-                "input_tokens": completion.usage.prompt_tokens,
-                "output_tokens": completion.usage.completion_tokens,
-                "total_tokens": completion.usage.total_tokens
-            }
+        processing_time = time.time() - start_time
+        ai_analysis = response.message.content
+        model_used = "kimi-k2.5:cloud"
+        tokens_used = {
+            "input_tokens": getattr(response, 'prompt_eval_count', 0) or 0,
+            "output_tokens": getattr(response, 'eval_count', 0) or 0,
+            "total_tokens": (getattr(response, 'prompt_eval_count', 0) or 0) + (getattr(response, 'eval_count', 0) or 0)
+        }
         
         # Construct response with AI analysis
         analysis = {
@@ -532,8 +494,7 @@ Provide your analysis in JSON format with appropriate medical categories and ext
             "analysis_type": analysis_type,
             "timestamp": datetime.now().isoformat(),
             "environment": "lambda" if os.getenv('AWS_LAMBDA_FUNCTION_NAME') else "local",
-            "anthropic_available": bool(anthropic_client),
-            "openai_available": bool(openai_client)
+            "ollama_available": bool(ollama_client)
         }
         
         # Specific error handling
@@ -732,8 +693,8 @@ def health_check() -> Dict[str, Any]:
     # Check API keys status
     api_status = {
         "stripe_configured": bool(stripe.api_key),
-        "anthropic_configured": bool(anthropic_client),
-        "openai_configured": bool(os.getenv("OPENAI_API_KEY"))
+        "ollama_configured": bool(ollama_client),
+        "ai_model": "kimi-k2.5:cloud"
     }
     
     return {
