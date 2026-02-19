@@ -660,7 +660,7 @@ def get_available_services() -> Dict[str, Any]:
 @mcp.tool
 def simulate_payment_success(payment_intent_id: str) -> Dict[str, Any]:
     """
-    Confirm a payment intent using Stripe test card (4242 4242 4242 4242).
+    Confirm a payment intent using a Stripe test token.
     Only works with Stripe test/sandbox API keys.
 
     Args:
@@ -674,21 +674,10 @@ def simulate_payment_success(payment_intent_id: str) -> Dict[str, Any]:
         return {"error": "Stripe not configured"}
 
     try:
-        # Create a test payment method with the standard Stripe test card
-        payment_method = stripe.PaymentMethod.create(
-            type="card",
-            card={
-                "number": "4242424242424242",
-                "exp_month": 12,
-                "exp_year": 2027,
-                "cvc": "123",
-            },
-        )
-
-        # Confirm the payment intent with the test payment method
+        # Confirm the payment intent using Stripe's built-in test token
         payment_intent = stripe.PaymentIntent.confirm(
             payment_intent_id,
-            payment_method=payment_method.id,
+            payment_method="pm_card_visa",
         )
 
         return {
@@ -698,7 +687,7 @@ def simulate_payment_success(payment_intent_id: str) -> Dict[str, Any]:
             "amount_received": payment_intent.amount_received,
             "currency": payment_intent.currency,
             "paid": payment_intent.status == "succeeded",
-            "test_card": "4242 4242 4242 4242",
+            "test_token": "pm_card_visa",
             "timestamp": datetime.now().isoformat()
         }
 
