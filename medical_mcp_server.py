@@ -162,6 +162,7 @@ def create_payment_intent(
             amount=amount,
             currency="usd",
             customer=customer_id,
+            automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
             description=description or f"Medical Analysis - {tier['description']} x{document_count}",
             metadata={
                 "analysis_type": analysis_type,
