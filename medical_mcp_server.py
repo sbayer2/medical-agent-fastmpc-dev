@@ -241,21 +241,21 @@ async def process_paid_analysis(
         Medical analysis results with payment confirmation
     """
     
-    # First confirm payment
-    payment_result = confirm_payment(payment_intent_id)
-    
+    # First confirm payment (call the underlying function, not the FunctionTool wrapper)
+    payment_result = confirm_payment.fn(payment_intent_id)
+
     if not payment_result.get("success") or not payment_result.get("paid"):
         return {
             "error": "Payment not confirmed or failed",
             "payment_status": payment_result
         }
-    
+
     # Extract analysis parameters from payment metadata
     metadata = payment_result.get("metadata", {})
     analysis_type = metadata.get("analysis_type", "basic")
-    
-    # Perform the medical analysis with AI
-    analysis_result = await analyze_medical_document(
+
+    # Perform the medical analysis with AI (call the underlying async function)
+    analysis_result = await analyze_medical_document.fn(
         document_content=document_content,
         analysis_type=analysis_type,
         patient_id=patient_id
