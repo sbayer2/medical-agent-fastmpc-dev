@@ -660,25 +660,53 @@ def get_available_services() -> Dict[str, Any]:
 @mcp.tool
 def simulate_payment_success(payment_intent_id: str) -> Dict[str, Any]:
     """
-    Simulate successful payment for testing purposes.
-    
+    Confirm a payment intent using Stripe test card (4242 4242 4242 4242).
+    Only works with Stripe test/sandbox API keys.
+
     Args:
-        payment_intent_id: Stripe payment intent ID to simulate success for
-        
+        payment_intent_id: Stripe payment intent ID to confirm
+
     Returns:
-        Simulated payment success response
+        Payment confirmation result from Stripe
     """
-    
-    # This is for testing only - simulates payment success
-    return {
-        "success": True,
-        "payment_intent_id": payment_intent_id,
-        "status": "succeeded",
-        "amount_received": "simulated",
-        "simulation": True,
-        "message": "Payment simulated as successful for testing purposes",
-        "timestamp": datetime.now().isoformat()
-    }
+
+    if not stripe.api_key:
+        return {"error": "Stripe not configured"}
+
+    try:
+        # Create a test payment method with the standard Stripe test card
+        payment_method = stripe.PaymentMethod.create(
+            type="card",
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": 2027,
+                "cvc": "123",
+            },
+        )
+
+        # Confirm the payment intent with the test payment method
+        payment_intent = stripe.PaymentIntent.confirm(
+            payment_intent_id,
+            payment_method=payment_method.id,
+        )
+
+        return {
+            "success": True,
+            "payment_intent_id": payment_intent.id,
+            "status": payment_intent.status,
+            "amount_received": payment_intent.amount_received,
+            "currency": payment_intent.currency,
+            "paid": payment_intent.status == "succeeded",
+            "test_card": "4242 4242 4242 4242",
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except stripe.error.StripeError as e:
+        return {
+            "error": f"Stripe error: {str(e)}",
+            "success": False
+        }
 
 # Health check function for monitoring
 @mcp.tool
